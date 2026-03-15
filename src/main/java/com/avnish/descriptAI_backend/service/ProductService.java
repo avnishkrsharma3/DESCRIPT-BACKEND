@@ -37,4 +37,10 @@ public class ProductService {
                 searchResults.size()
         );
     }
+
+    // search product by id
+    public Product searchProductById(String query){
+        Product product = productRepository.findProductById(query);
+            return product;
+    }
 }
