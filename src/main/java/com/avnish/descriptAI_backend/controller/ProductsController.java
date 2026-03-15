@@ -1,6 +1,7 @@
 package com.avnish.descriptAI_backend.controller;
 
 
+import com.avnish.descriptAI_backend.client.GeminiApiClient;
 import com.avnish.descriptAI_backend.client.ProductApiClient;
 import com.avnish.descriptAI_backend.dto.ProductsResponse;
 import com.avnish.descriptAI_backend.model.Product;
@@ -24,7 +25,7 @@ public class ProductsController {
 
     private final ProductApiClient productApiClient;
     private final ProductService productService;
-
+    private final GeminiApiClient geminiApiClient;
 
 
     @GetMapping("")
@@ -80,6 +81,7 @@ public class ProductsController {
             return ResponseEntity.status(500).body(errorResponse);
         }
     }
+
 
 
 

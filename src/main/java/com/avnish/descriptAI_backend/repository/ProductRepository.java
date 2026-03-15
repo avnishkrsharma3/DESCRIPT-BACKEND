@@ -19,4 +19,6 @@ public interface ProductRepository extends MongoRepository<Product, String> {
             "{ 'tags': { $regex: ?0, $options: 'i' } } " +
             "] }")
     List<Product> searchProducts(String query);
+
+    Product findProductById(String id);
 }
