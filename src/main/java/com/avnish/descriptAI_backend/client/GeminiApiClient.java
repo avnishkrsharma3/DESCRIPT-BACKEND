@@ -44,7 +44,7 @@ public class GeminiApiClient {
 
             // Call Gemini API
             GenerateContentResponse response = client.models.generateContent(
-                    "Gemini 2.5 Pro",  // Using stable model
+                    "Gemini 2.5 Flash",  // Using stable model
                     prompt,
                     null
             );
