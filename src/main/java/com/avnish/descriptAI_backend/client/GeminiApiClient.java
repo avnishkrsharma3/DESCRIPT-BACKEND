@@ -7,11 +7,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+
+// will not work as i am sending individual product so number of request is getting increased.
+
 @Slf4j
-@Service
+@Service("gemini")
 public class GeminiApiClient {
 
-    @Value("${gemini.api.key}")  // ← Fixed: was gemini.api.url
+    @Value("${gemini.api.key}")  // ΓåÉ Fixed: was gemini.api.url
     private String geminiApiKey;
 
     private Client client;
@@ -34,7 +37,7 @@ public class GeminiApiClient {
      * @return AI-generated description
      */
     public String generateProductDescription(String productName, String category, String productDescription, String tone
-    , String length, String focus) {
+            , String length, String focus) {
         try {
             log.info("Generating description for product: {}", productName);
 
@@ -44,7 +47,7 @@ public class GeminiApiClient {
 
             // Call Gemini API
             GenerateContentResponse response = client.models.generateContent(
-                    "gemini-2.5-flash",  // Using stable model
+                    "Gemini 2.5 Flash",  // Using stable model
                     prompt,
                     null
             );
