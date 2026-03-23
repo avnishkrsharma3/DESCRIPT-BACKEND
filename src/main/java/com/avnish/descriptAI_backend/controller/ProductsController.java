@@ -5,6 +5,7 @@ import com.avnish.descriptAI_backend.client.GeminiApiClient;
 import com.avnish.descriptAI_backend.client.ProductApiClient;
 import com.avnish.descriptAI_backend.dto.ProductsResponse;
 import com.avnish.descriptAI_backend.model.Product;
+import com.avnish.descriptAI_backend.model.ProductAIGenerated;
 import com.avnish.descriptAI_backend.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 
 @Slf4j
 @RestController
@@ -33,7 +35,7 @@ public class ProductsController {
         log.info("get all product from DB");
         try {
             ProductsResponse productResponse = productService.getAllProducts();
-           return ResponseEntity.ok(productResponse);
+            return ResponseEntity.ok(productResponse);
         } catch (Exception e) {
             log.error("Error in retrieving products at Controller: " + e.getMessage());
             return ResponseEntity.status(500).body(new ProductsResponse());
@@ -82,7 +84,23 @@ public class ProductsController {
         }
     }
 
+    /**
+     * Save products which were approved by user
+     * Endpoint: POST /api/products/save
+     */
+    @PostMapping("/save")
+    public ResponseEntity<ProductAIGenerated> save(@RequestBody ProductAIGenerated productAIGenerated) {
+        log.info("save endpoint called");
 
+        try {
+            productService.save(productAIGenerated);
+            return ResponseEntity.status(201).body(productAIGenerated);
+
+        } catch (Exception e) {
+            log.error("Error in save endpoint: {}", e.getMessage(), e);
+            return ResponseEntity.status(500).body(new ProductAIGenerated());
+        }
+    }
 
 
 }

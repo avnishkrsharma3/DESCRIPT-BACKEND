@@ -2,9 +2,12 @@ package com.avnish.descriptAI_backend.service;
 
 import com.avnish.descriptAI_backend.dto.ProductsResponse;
 import com.avnish.descriptAI_backend.model.Product;
+import com.avnish.descriptAI_backend.model.ProductAIGenerated;
+import com.avnish.descriptAI_backend.repository.ProductAIGeneratedRepository;
 import com.avnish.descriptAI_backend.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
 import java.util.List;
 
 @Service
@@ -12,6 +15,7 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductAIGeneratedRepository productAIGeneratedRepository;
 
     // Get all products with limit
     public ProductsResponse getAllProducts() {
@@ -41,6 +45,10 @@ public class ProductService {
     // search product by id
     public Product searchProductById(String query){
         Product product = productRepository.findProductById(query);
-            return product;
+        return product;
+    }
+    // save product by id
+    public ProductAIGenerated save(ProductAIGenerated productAIGenerated){
+       return productAIGeneratedRepository.save(productAIGenerated);
     }
 }

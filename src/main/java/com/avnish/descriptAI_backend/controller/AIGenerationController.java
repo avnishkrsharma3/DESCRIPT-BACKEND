@@ -1,9 +1,8 @@
 package com.avnish.descriptAI_backend.controller;
 
 
-import com.avnish.descriptAI_backend.client.GeminiApiClient;
-import com.avnish.descriptAI_backend.dto.ProductDetails;
-import com.avnish.descriptAI_backend.model.ProductAIGenerated;
+import com.avnish.descriptAI_backend.dto.ProductDescriptionGeneratedResponse;
+import com.avnish.descriptAI_backend.dto.ProductDescriptionRequest;
 import com.avnish.descriptAI_backend.service.AIService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,30 +22,25 @@ import java.util.List;
 
 public class AIGenerationController {
 
-    private final GeminiApiClient geminiApiClient;
     private final AIService aiService;
 
-    @PostMapping("/generate")
-    public ResponseEntity<List<ProductAIGenerated>> getProductById(@RequestBody ProductDetails productDetails) {
-        log.info("search Product by Id from DB for Id:" + productDetails.getPrompts());
-        List<ProductAIGenerated> ProductAIGeneratedList;
-        try {
-            int [] productIds = productDetails.getProductIds();
-            String prompts = productDetails.getPrompts();
-            ProductAIGeneratedList = aiService.generateDescription(productIds, prompts);
-            return ResponseEntity.ok(ProductAIGeneratedList);
-        } catch (Exception e) {
-            log.error("Error in searching and retrieving products by Id at Controller: " + e.getMessage());
+
+        @PostMapping("/generate")
+        public ResponseEntity<List<ProductDescriptionGeneratedResponse>> getProductById(@RequestBody ProductDescriptionRequest ProductDescriptionRequest) {
+            log.info("search Product by Id from DB for Id:" + ProductDescriptionRequest.getPrompts());
+            List<ProductDescriptionGeneratedResponse> productDescriptionGeneratedResponseList;
+            try {
+                List<String> productIds = ProductDescriptionRequest.getProductIds();
+                String prompts = ProductDescriptionRequest.getPrompts();
+                productDescriptionGeneratedResponseList = aiService.generateDescription(productIds, prompts);
+                return ResponseEntity.ok(productDescriptionGeneratedResponseList);
+            } catch (Exception e) {
+                log.error("Error in searching and retrieving products by Id at Controller: " + e.getMessage());
+            }
+            return ResponseEntity.status(500).body( new ArrayList<>());
         }
-       return ResponseEntity.status(500).body( new ArrayList<>());
+
+
+
+
     }
-
-    @PostMapping ("/save")
-    public ResponseEntity<Boolean> saveProductById(@RequestBody ProductAIGenerated productAIGenerated) {
-        log.info("save AI Genereated content in collections ProductAIGenerated");
-        aiService.save(productAIGenerated);
-        return ResponseEntity.ok(Boolean.TRUE);
-    }
-
-
-}

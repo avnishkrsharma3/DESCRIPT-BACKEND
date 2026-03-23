@@ -1,20 +1,15 @@
-package com.avnish.descriptAI_backend.model;
 
+package com.avnish.descriptAI_backend.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.annotation.Id;
-import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.time.LocalDateTime;
-
+// This will be used to send data to frontend
 @Data
-@Document(collection = "ProductAIGenerated")
-@AllArgsConstructor
 @NoArgsConstructor
-public class ProductAIGenerated {
-    @Id
+@AllArgsConstructor
+public class ProductDescriptionGeneratedResponse {
     private String productId;
     private String productName;
     private String category;
@@ -22,5 +17,4 @@ public class ProductAIGenerated {
     private String aiGeneratedDescription;
     private String aiModel;
     private String imageURL;
-    private LocalDateTime createdTime;
 }
