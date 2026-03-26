@@ -9,7 +9,9 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -26,34 +28,29 @@ public class GroqAIService {
     public List<ProductDescriptionGeneratedResponse> parseToProductDescriptions(GroqResponse groqResponse) {
         try {
             // Extract text content
+            String outputType  = "message";
+            String outputText = "output_text";
             String textContent = groqResponse.getOutput().stream()
-                    .filter(output -> "message".equals(output.getType()))
+                    .filter(output -> outputType.equals(output.getType()))
                     .flatMap(output -> output.getContent().stream())
-                    .filter(content -> "output_text".equals(content.getType()))
+                    .filter(content -> outputText.equals(content.getType()))
                     .map(Content::getText)
                     .findFirst()
                     .orElseThrow(() -> new RuntimeException("No text content found"));
 
-            log.debug("Extracted JSON text: {}", textContent);
+            log.info("Extracted JSON text: {}", textContent);
 
             // Parse inner JSON
-            AIProductResponse aiResponse = objectMapper.readValue(textContent, AIProductResponse.class);
+            // very impt to understand how ojbect mapper is working here;
+            String cleanedJson = textContent.trim()
+                    .replace("```json", "")
+                    .replace("```", "")
+                    .trim();
+            AIProductResponse aiProductResponse = objectMapper.readValue(cleanedJson, AIProductResponse.class);
 
-            // Convert to ProductDescriptionGeneratedResponse list
-            List<String> productIds = aiResponse.getProducts().stream()
-                    .map(GroqAIProduct::getId) // Method reference to your getter
-                    .toList();
-            List<ProductDescriptionGeneratedResponse> responses = aiResponse.getProducts().stream()
-                    .map(aiProduct -> new ProductDescriptionGeneratedResponse(
-                            aiProduct.getId(),                    // productId
-                            aiProduct.getName(),                  // productName
-                            "",                                 // category (empty for now)
-                            "",                                 // originalDescription (empty for now)
-                            aiProduct.getDescription(),           // aiGeneratedDescription
-                            "openai/gpt-oss-120b",               // aiModel
-                            ""                                  // imageURL (empty for now)
-                    ))
-                    .toList();
+            // build response
+            List<ProductDescriptionGeneratedResponse> responses = buildResponse(aiProductResponse);
+
 
             log.info("Parsed {} product descriptions", responses.size());
             return responses;
@@ -62,6 +59,37 @@ public class GroqAIService {
             log.error("Error parsing GroqResponse: {}", e.getMessage(), e);
             throw new RuntimeException("Failed to parse AI response", e);
         }
+    }
+    /**
+     get originalDescription, imgUrl and category from DB using product Id
+     */
+    private List<ProductDescriptionGeneratedResponse> buildResponse(AIProductResponse aiProductResponse){
+
+        log.info("BUILDING GROQ AI GENERATED RESPONSE");
+        if(aiProductResponse != null) {
+            List<ProductDescriptionGeneratedResponse> responses = new ArrayList<>();
+            List<GroqAIProduct> aiGeneratedProductList = aiProductResponse.getGroqAIProductList().stream().toList();
+            for (GroqAIProduct groqAIProduct : aiGeneratedProductList) {
+                Optional<Product> product = productRepository.findById(groqAIProduct.getId());
+                ProductDescriptionGeneratedResponse productDescriptionGeneratedResponse = new ProductDescriptionGeneratedResponse(
+                        product.get().getId(),                    // productId
+                        product.get().getTitle(),                  // productName
+                        product.get().getCategory(),               // category (empty for now)
+                        product.get().getDescription(),            // originalDescription (empty for now)
+                        groqAIProduct.getDescription(),           // aiGeneratedDescription
+                        "openai/gpt-oss-120b",                    // aiModel
+                        product.get().getImages().get(0)           // imageURL (empty for now)
+                );
+                responses.add(productDescriptionGeneratedResponse);
+            }
+            return responses;
+        }else{
+            log.info("aiProductResponse is null");
+            return new ArrayList<>();
+        }
+
+
+
     }
         /**
          * Generate AI prompt content
@@ -158,7 +186,9 @@ public class GroqAIService {
             }
             return " (80-120 words each)";
         }
-    }
+
+
+}
 
 
 
