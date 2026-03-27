@@ -8,6 +8,8 @@ import com.avnish.descriptAI_backend.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -49,6 +51,8 @@ public class ProductService {
     }
     // save product by id
     public ProductAIGenerated save(ProductAIGenerated productAIGenerated){
+        // Forces the time to IST (Asia/Kolkata)
+        productAIGenerated.setApprovedTime(LocalDateTime.now(ZoneId.of("Asia/Kolkata")));
        return productAIGeneratedRepository.save(productAIGenerated);
     }
 }

@@ -3,12 +3,16 @@ package com.avnish.descriptAI_backend.service;
 
 import com.avnish.descriptAI_backend.dto.*;
 import com.avnish.descriptAI_backend.model.Product;
+import com.avnish.descriptAI_backend.model.ProductAIGenerated;
+import com.avnish.descriptAI_backend.repository.ProductAIGeneratedRepository;
 import com.avnish.descriptAI_backend.repository.ProductRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -20,6 +24,7 @@ public class GroqAIService {
 
     private final ObjectMapper objectMapper;
     private final ProductRepository productRepository;
+    private final ProductAIGeneratedRepository productAIGeneratedRepository;
 
 
     /**
@@ -68,29 +73,65 @@ public class GroqAIService {
         log.info("BUILDING GROQ AI GENERATED RESPONSE");
         if(aiProductResponse != null) {
             List<ProductDescriptionGeneratedResponse> responses = new ArrayList<>();
-            List<GroqAIProduct> aiGeneratedProductList = aiProductResponse.getGroqAIProductList().stream().toList();
+            List<GroqAIProduct> aiGeneratedProductList = aiProductResponse.getGroqAIProductList();
             for (GroqAIProduct groqAIProduct : aiGeneratedProductList) {
-                Optional<Product> product = productRepository.findById(groqAIProduct.getId());
-                ProductDescriptionGeneratedResponse productDescriptionGeneratedResponse = new ProductDescriptionGeneratedResponse(
-                        product.get().getId(),                    // productId
-                        product.get().getTitle(),                  // productName
-                        product.get().getCategory(),               // category (empty for now)
-                        product.get().getDescription(),            // originalDescription (empty for now)
-                        groqAIProduct.getDescription(),           // aiGeneratedDescription
-                        "openai/gpt-oss-120b",                    // aiModel
-                        product.get().getImages().get(0)           // imageURL (empty for now)
-                );
-                responses.add(productDescriptionGeneratedResponse);
+                /*
+                Optional<ProductAIGenerated> optionalResponse = productAIGeneratedRepository.findById(groqAIProduct.getId());
+                if( optionalResponse.isPresent()) {
+                    ProductAIGenerated data = optionalResponse.get();
+                    ProductDescriptionGeneratedResponse productDescriptionGeneratedResponse =
+                            createProductDescriptionGeneratedResponse(data, groqAIProduct);
+                    responses.add(productDescriptionGeneratedResponse);
+                } else { */
+                    Optional<Product> optionalProduct = productRepository.findById(groqAIProduct.getId());
+                    if(optionalProduct.isPresent()){
+                        Product product = optionalProduct.get();
+                        ProductDescriptionGeneratedResponse productDescriptionGeneratedResponse =
+                                createProductDescriptionGeneratedResponse(product, groqAIProduct);
+                        responses.add(productDescriptionGeneratedResponse);
+                    }
+                    else{
+                        log.error("Not correct Id ");
+                    }
             }
             return responses;
         }else{
             log.info("aiProductResponse is null");
             return new ArrayList<>();
         }
-
-
-
     }
+    /**
+     *
+     * if product is already approved just check inside productaigenerated class
+     * and add directly inthe list.
+     */
+    public ProductDescriptionGeneratedResponse createProductDescriptionGeneratedResponse(ProductAIGenerated product, GroqAIProduct groqAIProduct){
+        ProductDescriptionGeneratedResponse productDescriptionGeneratedResponse = new ProductDescriptionGeneratedResponse(
+                product.getProductId(),                  // productId
+                product.getProductName(),                  // productName
+                product.getCategory(),               // category
+                product.getOriginalDescription(),            // originalDescription
+                groqAIProduct.getDescription(),            // aiGeneratedDescription
+                "openai/gpt-oss-120b",                     // aiModel
+                product.getImageURL(),         // imageURL
+                product.getCreatedTime()  // Forces the time to IST (Asia/Kolkata)
+        );
+        return productDescriptionGeneratedResponse;
+    }
+    public ProductDescriptionGeneratedResponse createProductDescriptionGeneratedResponse(Product product, GroqAIProduct groqAIProduct){
+        ProductDescriptionGeneratedResponse productDescriptionGeneratedResponse = new ProductDescriptionGeneratedResponse(
+                product.getId(),                     // productId
+                product.getTitle(),                  // productName
+                product.getCategory(),               // category
+                product.getDescription(),            // originalDescription
+                groqAIProduct.getDescription(),            // aiGeneratedDescription
+                "openai/gpt-oss-120b",                     // aiModel
+                product.getImages().get(0),         // imageURL
+                LocalDateTime.now(ZoneId.of("Asia/Kolkata"))  // Forces the time to IST (Asia/Kolkata)
+        );
+        return productDescriptionGeneratedResponse;
+    }
+
         /**
          * Generate AI prompt content
          *

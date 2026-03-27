@@ -23,4 +23,5 @@ public class ProductAIGenerated {
     private String aiModel;
     private String imageURL;
     private LocalDateTime createdTime;
+    private LocalDateTime approvedTime;
 }
