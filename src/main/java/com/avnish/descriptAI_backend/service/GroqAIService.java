@@ -26,7 +26,6 @@ public class GroqAIService {
     private final ProductRepository productRepository;
     private final ProductAIGeneratedRepository productAIGeneratedRepository;
 
-
     /**
      * Parse GroqResponse and convert to List<ProductDescriptionGeneratedResponse>
      */
@@ -105,21 +104,21 @@ public class GroqAIService {
      * if product is already approved just check inside productaigenerated class
      * and add directly inthe list.
      */
-    public ProductDescriptionGeneratedResponse createProductDescriptionGeneratedResponse(ProductAIGenerated product, GroqAIProduct groqAIProduct){
-        ProductDescriptionGeneratedResponse productDescriptionGeneratedResponse = new ProductDescriptionGeneratedResponse(
+    public ProductDescriptionGeneratedResponse createProductDescriptionGeneratedResponse(ProductAIGenerated product){
+        return new ProductDescriptionGeneratedResponse(
                 product.getProductId(),                  // productId
                 product.getProductName(),                  // productName
                 product.getCategory(),               // category
                 product.getOriginalDescription(),            // originalDescription
-                groqAIProduct.getDescription(),            // aiGeneratedDescription
-                "openai/gpt-oss-120b",                     // aiModel
+                product.getAiGeneratedDescription(),            // aiGeneratedDescription
+                product.getAiModel(),                     // aiModel
                 product.getImageURL(),         // imageURL
-                product.getCreatedTime()  // Forces the time to IST (Asia/Kolkata)
+                product.getCreatedTime(),  // Forces the time to IST (Asia/Kolkata)
+                true
         );
-        return productDescriptionGeneratedResponse;
     }
     public ProductDescriptionGeneratedResponse createProductDescriptionGeneratedResponse(Product product, GroqAIProduct groqAIProduct){
-        ProductDescriptionGeneratedResponse productDescriptionGeneratedResponse = new ProductDescriptionGeneratedResponse(
+        return  new ProductDescriptionGeneratedResponse(
                 product.getId(),                     // productId
                 product.getTitle(),                  // productName
                 product.getCategory(),               // category
@@ -127,9 +126,10 @@ public class GroqAIService {
                 groqAIProduct.getDescription(),            // aiGeneratedDescription
                 "openai/gpt-oss-120b",                     // aiModel
                 product.getImages().get(0),         // imageURL
-                LocalDateTime.now(ZoneId.of("Asia/Kolkata"))  // Forces the time to IST (Asia/Kolkata)
+                LocalDateTime.now(ZoneId.of("Asia/Kolkata")),  // Forces the time to IST (Asia/Kolkata)
+                false
         );
-        return productDescriptionGeneratedResponse;
+
     }
 
         /**
@@ -141,7 +141,7 @@ public class GroqAIService {
          */
         public String buildPromptContent(List<String>productIds, String descriptionType) {
 
-            // Fetch products from database
+            //Fetch products from database
             List<Product> products = productRepository.findAllById(productIds);
 
             if (products.isEmpty()) {
@@ -228,7 +228,25 @@ public class GroqAIService {
             return " (80-120 words each)";
         }
 
-
+    public DescriptionGeneratedList findGeneratedOne(List<String> productIds) {
+        List<ProductDescriptionGeneratedResponse> productDescriptionGeneratedResponseList = new ArrayList<>();
+        List<String> notFoundList = new ArrayList<>();
+            for(String id : productIds){
+                Optional<ProductAIGenerated> productAIGenerated = productAIGeneratedRepository.findById(id);
+                if(productAIGenerated.isPresent()){
+                    log.info("This product is already approved: {}", productAIGenerated.get().getProductName());
+                    ProductDescriptionGeneratedResponse productDescriptionGeneratedResponse
+                            = createProductDescriptionGeneratedResponse(productAIGenerated.get());
+                    productDescriptionGeneratedResponseList.add(productDescriptionGeneratedResponse);
+                }else{
+                    notFoundList.add(id);
+                }
+            }
+        return new DescriptionGeneratedList(
+                productDescriptionGeneratedResponseList,
+                notFoundList
+        );
+    }
 }
 
 

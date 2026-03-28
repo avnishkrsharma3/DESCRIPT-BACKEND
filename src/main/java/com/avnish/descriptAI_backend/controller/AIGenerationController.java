@@ -27,7 +27,7 @@ public class AIGenerationController {
 
         @PostMapping("/generate")
         public ResponseEntity<List<ProductDescriptionGeneratedResponse>> getProductById(@RequestBody ProductDescriptionRequest ProductDescriptionRequest) {
-            log.info("search Product by Id from DB for Id:" + ProductDescriptionRequest.getPrompts());
+            log.info("search Product by Id from DB for Id: {}" , ProductDescriptionRequest.getPrompts());
             List<ProductDescriptionGeneratedResponse> productDescriptionGeneratedResponseList;
             try {
                 List<String> productIds = ProductDescriptionRequest.getProductIds();
@@ -35,7 +35,7 @@ public class AIGenerationController {
                 productDescriptionGeneratedResponseList = aiService.generateDescription(productIds, prompts);
                 return ResponseEntity.ok(productDescriptionGeneratedResponseList);
             } catch (Exception e) {
-                log.error("Error in searching and retrieving products by Id at Controller: " + e.getMessage());
+                log.error("Error in searching and retrieving products by Id at Controller: {}", e.getMessage());
             }
             return ResponseEntity.status(500).body( new ArrayList<>());
         }
