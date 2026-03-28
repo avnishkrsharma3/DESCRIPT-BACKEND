@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: descriptai-backend
+    env: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: MONGODB_URI
+        sync: false
+      - key: GEMINI_API_URL
+        sync: false
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: GROQ_API_URL
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: AI_CLIENT
+        value: groq
+      - key: EXTERNAL_API_URL
+        value: https://dummyjson.com/products
