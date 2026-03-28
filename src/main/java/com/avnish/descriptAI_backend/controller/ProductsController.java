@@ -90,7 +90,9 @@ public class ProductsController {
      */
     @PostMapping("/save")
     public ResponseEntity<ProductAIGenerated> save(@RequestBody ProductAIGenerated productAIGenerated) {
-        log.info("save endpoint called");
+        log.info("save endpoint called for Product Id: " + productAIGenerated.getProductId());
+
+        log.info("productAIGenerated is {} " + productAIGenerated);
 
         try {
             productService.save(productAIGenerated);

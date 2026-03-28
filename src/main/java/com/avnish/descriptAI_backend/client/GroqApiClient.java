@@ -1,5 +1,6 @@
 package com.avnish.descriptAI_backend.client;
 
+import com.avnish.descriptAI_backend.dto.DescriptionGeneratedList;
 import com.avnish.descriptAI_backend.dto.GroqAIRequest;
 import com.avnish.descriptAI_backend.dto.GroqResponse;
 import com.avnish.descriptAI_backend.dto.ProductDescriptionGeneratedResponse;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @Service("groq")
 @Slf4j
@@ -33,8 +35,15 @@ public class GroqApiClient implements AIClient{
 
     @Override
     public List<ProductDescriptionGeneratedResponse> generateProductDescription(List<String> productIds, String prompts) {
-        String content = groqAIService.buildPromptContent(productIds, prompts);
-        return callGroqAPI(buildRequest(content));
+        DescriptionGeneratedList descriptionGeneratedList = groqAIService.findGeneratedOne(productIds);
+        // fetch from db that is already approved by user
+        List<ProductDescriptionGeneratedResponse> responseApproved =
+                descriptionGeneratedList.getProductDescriptionGeneratedResponseList();
+        List<String> notFound = descriptionGeneratedList.getProductIds();
+        if(notFound.isEmpty()) return responseApproved;
+        String content = groqAIService.buildPromptContent(notFound, prompts);
+        List<ProductDescriptionGeneratedResponse> responseNotGenerated = callGroqAPI(buildRequest(content));
+        return Stream.concat(responseApproved.stream(), responseNotGenerated.stream()).toList();
     }
 
     // -------- 1. Build Request --------

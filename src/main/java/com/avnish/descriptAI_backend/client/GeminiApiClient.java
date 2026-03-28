@@ -1,5 +1,6 @@
 package com.avnish.descriptAI_backend.client;
 
+import com.avnish.descriptAI_backend.dto.ProductDescriptionGeneratedResponse;
 import com.google.genai.Client;
 import com.google.genai.types.GenerateContentResponse;
 import jakarta.annotation.PostConstruct;
@@ -7,12 +8,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 
 // will not work as i am sending individual product so number of request is getting increased.
 
 @Slf4j
 @Service("gemini")
-public class GeminiApiClient {
+public class GeminiApiClient implements AIClient{
 
     @Value("${gemini.api.key}")  // ΓåÉ Fixed: was gemini.api.url
     private String geminiApiKey;
@@ -26,6 +29,11 @@ public class GeminiApiClient {
                 .apiKey(geminiApiKey)
                 .build();
         log.info("Gemini AI Client initialized successfully");
+    }
+
+    @Override
+    public List<ProductDescriptionGeneratedResponse> generateProductDescription(List<String> productIds, String prompt) {
+        return List.of();
     }
 
     /**
@@ -106,4 +114,6 @@ public class GeminiApiClient {
             return "Description not available";
         }
     }
+
+
 }
