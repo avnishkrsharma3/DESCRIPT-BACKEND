@@ -5,8 +5,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -32,29 +34,39 @@ public class SecurityConfig {
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy((SessionCreationPolicy.STATELESS) ))
                 .authorizeHttpRequests(auth -> auth
+                                // 1. Explicitly allow POST for ALL auth endpoints
+                                .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
 
-                        .requestMatchers(HttpMethod.POST, "/api/products/save", "/api/AI/generate").hasRole("ADMIN")
+                                // 2. Admin restricted POSTs
+                                .requestMatchers(HttpMethod.POST, "/api/products/save", "/api/AI/generate").hasRole("ADMIN")
 
-                        // 2. USER + ADMIN: All GET calls under /api/products
-                        .requestMatchers(HttpMethod.GET, "/api/products/**").hasAnyRole("ADMIN", "USER")
+                                // 3. User + Admin GETs
+                                .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
 
-                        // 3. Optional: Public Auth endpoints (if any)
-                        .requestMatchers("/api/v1/auth/**").permitAll()
-                        .anyRequest().authenticated())
+                                // 4. Other permitAll (like swagger UI)
+                                .requestMatchers("/swagger-ui/**", "/error/**", "/v3/api-docs/**", "/webjars/**").permitAll()
+
+                                .anyRequest().authenticated()
+                        )
                 .authenticationProvider(authenticationProvider())
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
     @Bean
-    private AuthenticationProvider authenticationProvider() {
+    public AuthenticationProvider authenticationProvider() {
             DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
             provider.setUserDetailsService(userDetailsService);
             provider.setPasswordEncoder(passwordEncoder());
             return provider;
     }
-
-    private PasswordEncoder passwordEncoder() {
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config)
+            throws Exception {
+        return config.getAuthenticationManager();
+    }
+    @Bean
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
