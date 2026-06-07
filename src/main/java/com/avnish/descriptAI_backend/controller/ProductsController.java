@@ -85,7 +85,7 @@ public class ProductsController {
     }
 
     /**
-     * Save products which were approved by user
+     * Save products which were approved by user(admin)
      * Endpoint: POST /api/products/save
      */
     @PostMapping("/save")
