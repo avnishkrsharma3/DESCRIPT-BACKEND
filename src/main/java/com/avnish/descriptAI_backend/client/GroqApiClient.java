@@ -29,12 +29,14 @@ public class GroqApiClient implements AIClient{
     @Value("${groq.api.url}")
     private String apiUrl;
 
+
     private final RestTemplate restTemplate = new RestTemplate();
     private final GroqAIService groqAIService;
 
 
     @Override
     public List<ProductDescriptionGeneratedResponse> generateProductDescription(List<String> productIds, String prompts) {
+
         DescriptionGeneratedList descriptionGeneratedList = groqAIService.findGeneratedOne(productIds);
         // fetch from db that is already approved by user
         List<ProductDescriptionGeneratedResponse> responseApproved =
