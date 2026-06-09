@@ -44,7 +44,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
 
                                 // 4. Other permitAll (like swagger UI)
-                                .requestMatchers("/swagger-ui/**", "/error/**", "/v3/api-docs/**", "/webjars/**").permitAll()
+                                .requestMatchers("/swagger-ui/**", "/error/**", "/v3/api-docs/**", "/webjars/**","/actuator/health**").permitAll()
 
                                 .anyRequest().authenticated()
                         )
