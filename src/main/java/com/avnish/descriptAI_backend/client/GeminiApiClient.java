@@ -17,7 +17,7 @@ import java.util.List;
 @Service("gemini")
 public class GeminiApiClient implements AIClient{
 
-    @Value("${gemini.api.key}")  // ΓåÉ Fixed: was gemini.api.url
+    @Value("${gemini.api.key}")  //  was gemini.api.url
     private String geminiApiKey;
 
     private Client client;

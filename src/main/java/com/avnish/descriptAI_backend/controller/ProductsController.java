@@ -2,7 +2,7 @@ package com.avnish.descriptAI_backend.controller;
 
 
 import com.avnish.descriptAI_backend.client.GeminiApiClient;
-import com.avnish.descriptAI_backend.client.ProductApiClient;
+import com.avnish.descriptAI_backend.client.FetchProducOnceApiClient;
 import com.avnish.descriptAI_backend.dto.ProductsResponse;
 import com.avnish.descriptAI_backend.model.Product;
 import com.avnish.descriptAI_backend.model.ProductAIGenerated;
@@ -25,7 +25,7 @@ import java.util.Map;
 public class ProductsController {
 
 
-    private final ProductApiClient productApiClient;
+    private final FetchProducOnceApiClient productApiClient;
     private final ProductService productService;
     private final GeminiApiClient geminiApiClient;
 
