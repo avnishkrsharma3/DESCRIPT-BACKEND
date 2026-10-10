@@ -50,6 +50,14 @@ public class GroqApiClient implements AIClient{
 
     // -------- 1. Build Request --------
     private HttpEntity<GroqAIRequest> buildRequest(String content) {
+/*
+        Responses (beta)
+        Create response
+        POST
+        https://api.groq.com/openai/v1/responses
+
+        Creates a model response for the given input.
+*/
 
         GroqAIRequest request = GroqAIRequest.builder()
                 .model("openai/gpt-oss-120b")

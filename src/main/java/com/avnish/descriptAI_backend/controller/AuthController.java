@@ -1,9 +1,11 @@
 package com.avnish.descriptAI_backend.controller;
+
 import com.avnish.descriptAI_backend.dto.AuthResponse;
 import com.avnish.descriptAI_backend.dto.LoginRequest;
 import com.avnish.descriptAI_backend.model.User;
 import com.avnish.descriptAI_backend.repository.UserRepository;
 import com.avnish.descriptAI_backend.service.JwtService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +34,8 @@ public class AuthController {
 
     // ── Register ───────────────────────────────────────────
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody LoginRequest request) {
+    public ResponseEntity<String> register(@Valid @RequestBody LoginRequest request) {
+        log.info("Register request is :" + request);
         if (userRepository.findByUsername(request.getUsername()).isPresent()) {
             return ResponseEntity.badRequest().body("Username already taken!");
         }
@@ -48,7 +51,7 @@ public class AuthController {
 
     // ── Login ──────────────────────────────────────────────
     @PostMapping("/login")
-    public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest request) {
+    public ResponseEntity<AuthResponse> login(@Valid @RequestBody LoginRequest request) {
         log.info("<-------------------- User " + request.getUsername() + " is trying to login. -------------->");
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
