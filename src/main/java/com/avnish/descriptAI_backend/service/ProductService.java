@@ -55,4 +55,7 @@ public class ProductService {
         productAIGenerated.setApprovedTime(LocalDateTime.now(ZoneId.of("Asia/Kolkata")));
        return productAIGeneratedRepository.save(productAIGenerated);
     }
+    public  List<ProductAIGenerated> getApprovedProductList(){
+        return productAIGeneratedRepository.findAll();
+    }
 }
