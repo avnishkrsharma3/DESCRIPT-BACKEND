@@ -1,8 +1,8 @@
 package com.avnish.descriptAI_backend.controller;
 
 
-import com.avnish.descriptAI_backend.client.GeminiApiClient;
 import com.avnish.descriptAI_backend.client.FetchProducOnceApiClient;
+import com.avnish.descriptAI_backend.client.GeminiApiClient;
 import com.avnish.descriptAI_backend.dto.ProductsResponse;
 import com.avnish.descriptAI_backend.model.Product;
 import com.avnish.descriptAI_backend.model.ProductAIGenerated;
@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,12 +90,13 @@ public class ProductsController {
      * Endpoint: POST /api/products/save
      */
     @PostMapping("/save")
-    public ResponseEntity<ProductAIGenerated> save(@RequestBody ProductAIGenerated productAIGenerated) {
+    public ResponseEntity<ProductAIGenerated> save(@RequestBody ProductAIGenerated productAIGenerated, Principal principal) {
         log.info("save endpoint called for Product Id: " + productAIGenerated.getProductId());
 
         log.info("productAIGenerated is {} " + productAIGenerated);
 
         try {
+            productAIGenerated.setProductApprovedBy(principal.getName());
             productService.save(productAIGenerated);
             return ResponseEntity.status(201).body(productAIGenerated);
 
@@ -102,6 +104,15 @@ public class ProductsController {
             log.error("Error in save endpoint: {}", e.getMessage(), e);
             return ResponseEntity.status(500).body(new ProductAIGenerated());
         }
+    }
+    @GetMapping("/aprroved/products")
+    public ResponseEntity<List<ProductAIGenerated>> getApprovedProductList( ) {
+
+
+            log.info("fetching aprroved/products");
+            List<ProductAIGenerated> productAIGeneratedList =productService.getApprovedProductList();
+            return ResponseEntity.status(200).body(productAIGeneratedList);
+
     }
 
 
