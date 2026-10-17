@@ -5,14 +5,12 @@ import com.avnish.descriptAI_backend.client.FetchProducOnceApiClient;
 import com.avnish.descriptAI_backend.client.GeminiApiClient;
 import com.avnish.descriptAI_backend.dto.ProductsResponse;
 import com.avnish.descriptAI_backend.model.Product;
-import com.avnish.descriptAI_backend.model.ProductAIGenerated;
 import com.avnish.descriptAI_backend.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.security.Principal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -58,7 +56,7 @@ public class ProductsController {
      * Fetch products from external API and save to MongoDB
      * Endpoint: POST /api/products/fetch
      */
-    @PostMapping("/fetch")
+    @PostMapping("/fetch/save")
     public ResponseEntity<Map<String, Object>> fetchProducts() {
         log.info("Fetch endpoint called");
 
@@ -89,31 +87,32 @@ public class ProductsController {
      * Save products which were approved by user(admin)
      * Endpoint: POST /api/products/save
      */
+    /*
     @PostMapping("/save")
-    public ResponseEntity<ProductAIGenerated> save(@RequestBody ProductAIGenerated productAIGenerated, Principal principal) {
-        log.info("save endpoint called for Product Id: " + productAIGenerated.getProductId());
+    public ResponseEntity<ProductDescription> save(@RequestBody ProductDescription ProductDescription, Principal principal) {
+        log.info("save endpoint called for Product Id: " + ProductDescription.getProductId());
 
-        log.info("productAIGenerated is {} " + productAIGenerated);
+        log.info("ProductDescription is {} " + ProductDescription);
 
         try {
-            productAIGenerated.setProductApprovedBy(principal.getName());
-            productService.save(productAIGenerated);
-            return ResponseEntity.status(201).body(productAIGenerated);
+            ProductDescription.setProductApprovedBy(principal.getName());
+            productService.save(ProductDescription);
+            return ResponseEntity.status(201).body(ProductDescription);
 
         } catch (Exception e) {
             log.error("Error in save endpoint: {}", e.getMessage(), e);
-            return ResponseEntity.status(500).body(new ProductAIGenerated());
+            return ResponseEntity.status(500).body(new ProductDescription());
         }
     }
     @GetMapping("/aprroved/products")
-    public ResponseEntity<List<ProductAIGenerated>> getApprovedProductList( ) {
+    public ResponseEntity<List<ProductDescription>> getApprovedProductList( ) {
 
 
             log.info("fetching aprroved/products");
-            List<ProductAIGenerated> productAIGeneratedList =productService.getApprovedProductList();
-            return ResponseEntity.status(200).body(productAIGeneratedList);
+            List<ProductDescription> ProductDescriptionList =productService.getApprovedProductList();
+            return ResponseEntity.status(200).body(ProductDescriptionList);
 
     }
-
+*/
 
 }

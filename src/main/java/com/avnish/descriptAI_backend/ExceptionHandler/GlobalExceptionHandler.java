@@ -1,5 +1,6 @@
 package com.avnish.descriptAI_backend.ExceptionHandler;
 
+import com.avnish.descriptAI_backend.exceptions.DescriptionException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -93,4 +94,18 @@ public class GlobalExceptionHandler {
         log.error("Unhandled exception on {} {}", request.getMethod(), request.getRequestURI(), ex);
         return build(HttpStatus.INTERNAL_SERVER_ERROR, "Something went wrong. Please try again later.", request);
     }
+
+    @ExceptionHandler(DescriptionException.NotFound.class)
+    public ResponseEntity<ErrorResponse> handleDescriptionNotFound(DescriptionException.NotFound ex,
+                                                                   HttpServletRequest request) {
+        return build(HttpStatus.NOT_FOUND, ex.getMessage(), request);
+    }
+
+    /** Action not allowed in the current status (e.g. approving a REJECTED draft) -> 409 */
+    @ExceptionHandler(DescriptionException.InvalidState.class)
+    public ResponseEntity<ErrorResponse> handleInvalidState(DescriptionException.InvalidState ex,
+                                                            HttpServletRequest request) {
+        return build(HttpStatus.CONFLICT, ex.getMessage(), request);
+    }
+
 }
