@@ -47,11 +47,13 @@ public class SecurityConfig {
                                 // 1. Explicitly allow POST for ALL auth endpoints
                                 .requestMatchers(HttpMethod.POST, "/api/v1/auth/**").permitAll()
 
+                                .requestMatchers(HttpMethod.DELETE, "/api/product/description/delete/**").hasRole("ADMIN")
+
                                 // 2. Admin restricted POSTs
-                                .requestMatchers(HttpMethod.POST, "/api/products/save", "/api/AI/generate").hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.POST, "/api/products/save", "/api/AI/generate", "/api/product/description/approve").hasRole("ADMIN")
 
                                 // 3. User + Admin GETs
-                                .requestMatchers(HttpMethod.GET, "/api/products/**").hasAnyRole("USER", "ADMIN")
+                                .requestMatchers(HttpMethod.GET, "/api/products/**", "/api/product/description/status").hasAnyRole("USER", "ADMIN")
 
                                 // 4. Other permitAll (like swagger UI)
                                 .requestMatchers("/swagger-ui/**", "/error/**", "/v3/api-docs/**", "/webjars/**","/actuator/**").permitAll()

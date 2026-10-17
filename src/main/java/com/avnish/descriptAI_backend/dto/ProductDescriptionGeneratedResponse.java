@@ -20,5 +20,6 @@ public class ProductDescriptionGeneratedResponse {
     private String aiModel;
     private String imageURL;
     private LocalDateTime createdTime;
+    private String status;
     private boolean approved;
 }

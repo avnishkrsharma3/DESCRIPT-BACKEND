@@ -2,14 +2,10 @@ package com.avnish.descriptAI_backend.service;
 
 import com.avnish.descriptAI_backend.dto.ProductsResponse;
 import com.avnish.descriptAI_backend.model.Product;
-import com.avnish.descriptAI_backend.model.ProductAIGenerated;
-import com.avnish.descriptAI_backend.repository.ProductAIGeneratedRepository;
 import com.avnish.descriptAI_backend.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -17,7 +13,6 @@ import java.util.List;
 public class ProductService {
 
     private final ProductRepository productRepository;
-    private final ProductAIGeneratedRepository productAIGeneratedRepository;
 
     // Get all products with limit
     public ProductsResponse getAllProducts() {
@@ -49,13 +44,5 @@ public class ProductService {
         Product product = productRepository.findProductById(query);
         return product;
     }
-    // save product by id
-    public ProductAIGenerated save(ProductAIGenerated productAIGenerated){
-        // Forces the time to IST (Asia/Kolkata)
-        productAIGenerated.setApprovedTime(LocalDateTime.now(ZoneId.of("Asia/Kolkata")));
-       return productAIGeneratedRepository.save(productAIGenerated);
-    }
-    public  List<ProductAIGenerated> getApprovedProductList(){
-        return productAIGeneratedRepository.findAll();
-    }
+
 }
